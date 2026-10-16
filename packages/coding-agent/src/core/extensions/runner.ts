@@ -13,6 +13,7 @@ import {
 import type { KeyId } from "@earendil-works/pi-tui";
 import { type Theme, theme } from "../../modes/interactive/theme/theme.ts";
 import type { CacheWarmingAction } from "../cache-warmer.ts";
+import { resolveExtensionCommands } from "../command-resolver.ts";
 import type { ResourceDiagnostic } from "../diagnostics.ts";
 import type { KeybindingsConfig } from "../keybindings.ts";
 import type { ModelRegistry } from "../model-registry.ts";
@@ -70,7 +71,6 @@ import type {
 	ProjectTrustEvent,
 	ProjectTrustEventResult,
 	ProviderConfig,
-	RegisteredCommand,
 	RegisteredTool,
 	ReplacedSessionContext,
 	ResolvedCommand,
@@ -811,49 +811,13 @@ export class ExtensionRunner {
 		return undefined;
 	}
 
-	private resolveRegisteredCommands(): ResolvedCommand[] {
-		const commands: RegisteredCommand[] = [];
-		const counts = new Map<string, number>();
-
-		for (const ext of this.extensions) {
-			for (const command of ext.commands.values()) {
-				commands.push(command);
-				counts.set(command.name, (counts.get(command.name) ?? 0) + 1);
-			}
-		}
-
-		const seen = new Map<string, number>();
-		const takenInvocationNames = new Set<string>();
-
-		return commands.map((command) => {
-			const occurrence = (seen.get(command.name) ?? 0) + 1;
-			seen.set(command.name, occurrence);
-
-			let invocationName = (counts.get(command.name) ?? 0) > 1 ? `${command.name}:${occurrence}` : command.name;
-
-			if (takenInvocationNames.has(invocationName)) {
-				let suffix = occurrence;
-				do {
-					suffix++;
-					invocationName = `${command.name}:${suffix}`;
-				} while (takenInvocationNames.has(invocationName));
-			}
-
-			takenInvocationNames.add(invocationName);
-			return {
-				...command,
-				invocationName,
-			};
-		});
-	}
-
 	getModelRegistry(): ModelRegistry {
 		return this.modelRegistry;
 	}
 
 	getRegisteredCommands(): ResolvedCommand[] {
 		this.commandDiagnostics = [];
-		return this.resolveRegisteredCommands();
+		return resolveExtensionCommands(this.extensions);
 	}
 
 	getCommandDiagnostics(): ResourceDiagnostic[] {
@@ -861,7 +825,7 @@ export class ExtensionRunner {
 	}
 
 	getCommand(name: string): ResolvedCommand | undefined {
-		return this.resolveRegisteredCommands().find((command) => command.invocationName === name);
+		return resolveExtensionCommands(this.extensions).find((command) => command.invocationName === name);
 	}
 
 	/**

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added package-root APIs for sessionless resource command resolution, prompt template expansion, and project trust resolution.
+
 ### Changed
 
 - `generateSummary()` and `generateSummaryWithUsage()` now ignore their `reserveTokens` parameter. Summary requests use the model's output limit instead.

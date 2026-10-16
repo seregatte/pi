@@ -25,6 +25,13 @@ export {
 } from "./core/agent-session.ts";
 export { readStoredCredential } from "./core/auth-storage.ts";
 export type { CacheWarmingDecision, CacheWarmingStatus } from "./core/cache-warmer.ts";
+export {
+	type CommandResources,
+	listResourceCommands,
+	type ResourceCommand,
+	resolveExtensionCommands,
+	resolveResourceCommand,
+} from "./core/command-resolver.ts";
 // Compaction
 export {
 	type BranchPreparation,
@@ -244,6 +251,8 @@ export type {
 	ResolvedResource,
 } from "./core/package-manager.ts";
 export { DefaultPackageManager } from "./core/package-manager.ts";
+export { type ResolveProjectTrustedOptions, resolveProjectTrusted } from "./core/project-trust.ts";
+export { expandPromptTemplate } from "./core/prompt-templates.ts";
 export type { ResourceCollision, ResourceDiagnostic, ResourceLoader } from "./core/resource-loader.ts";
 export { DefaultResourceLoader, loadProjectContextFiles } from "./core/resource-loader.ts";
 // SDK for programmatic usage
